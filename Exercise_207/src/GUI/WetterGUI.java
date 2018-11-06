@@ -5,17 +5,42 @@
  */
 package GUI;
 
+import BL.WetterTableCellRenderer;
+import BL.WetterTableModell;
+import BL.Wetterstation;
+import java.io.File;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JOptionPane;
+
 /**
  *
  * @author Dominik
  */
 public class WetterGUI extends javax.swing.JFrame {
 
+    private WetterTableModell bl = new WetterTableModell();
+    private File f = new File("./Wetterstations.bin");
     /**
      * Creates new form WetterGUI
      */
-    public WetterGUI() {
+    public WetterGUI() throws Exception {
         initComponents();
+        table.setModel(bl);
+        table.setDefaultRenderer(Object.class, new WetterTableCellRenderer());
+        
+//        bl.add(new Wetterstation("Rohrspitz", 395, 11.7, 75));
+//        bl.add(new Wetterstation("Dornbirn", 407, 11.0, 77));
+//        bl.add(new Wetterstation("Fraxern", 809, 10.5, 57));
+//        bl.add(new Wetterstation("Feldkirch", 436, 11.0, 81));
+        
+        bl.sort();
+        
+        if(f.exists()){
+            bl.load(f);
+        }
+        
+        //bl.hideColumn(4);
     }
 
     /**
@@ -27,21 +52,148 @@ public class WetterGUI extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        popup = new javax.swing.JPopupMenu();
+        miHIdeSeaLevel = new javax.swing.JMenuItem();
+        miShowSeaLevel = new javax.swing.JMenuItem();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        table = new javax.swing.JTable();
+        jMenuBar1 = new javax.swing.JMenuBar();
+        jMenu1 = new javax.swing.JMenu();
+        miAdd = new javax.swing.JMenuItem();
+        miDelete = new javax.swing.JMenuItem();
+        jMenu2 = new javax.swing.JMenu();
+        miSetTemp = new javax.swing.JMenuItem();
+        miSetHumidity = new javax.swing.JMenuItem();
+
+        miHIdeSeaLevel.setText("Hide Sea Level");
+        miHIdeSeaLevel.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                miHIdeSeaLevelActionPerformed(evt);
+            }
+        });
+        popup.add(miHIdeSeaLevel);
+
+        miShowSeaLevel.setText("Show Sea Level");
+        popup.add(miShowSeaLevel);
+
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                formWindowClosing(evt);
+            }
+        });
+
+        table.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "Title 1", "Title 2", "Title 3", "Title 4"
+            }
+        ));
+        table.setComponentPopupMenu(popup);
+        jScrollPane1.setViewportView(table);
+
+        jMenu1.setText("Stations");
+
+        miAdd.setText("Add Weather Station");
+        miAdd.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                miAddActionPerformed(evt);
+            }
+        });
+        jMenu1.add(miAdd);
+
+        miDelete.setText("Remove Weather Station");
+        miDelete.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                miDeleteActionPerformed(evt);
+            }
+        });
+        jMenu1.add(miDelete);
+
+        jMenuBar1.add(jMenu1);
+
+        jMenu2.setText("Values");
+
+        miSetTemp.setText("Set Temperature");
+        miSetTemp.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                miSetTempActionPerformed(evt);
+            }
+        });
+        jMenu2.add(miSetTemp);
+
+        miSetHumidity.setText("Set Humidity");
+        miSetHumidity.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                miSetHumidityActionPerformed(evt);
+            }
+        });
+        jMenu2.add(miSetHumidity);
+
+        jMenuBar1.add(jMenu2);
+
+        setJMenuBar(jMenuBar1);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 634, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 346, Short.MAX_VALUE)
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void miAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miAddActionPerformed
+        WetterDialog dl = new WetterDialog(this, true);
+        dl.setVisible(true);
+        
+        bl.add(dl.getW());
+        bl.sort();
+    }//GEN-LAST:event_miAddActionPerformed
+
+    private void miDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miDeleteActionPerformed
+        bl.delete(table.getSelectedRow());
+    }//GEN-LAST:event_miDeleteActionPerformed
+
+    private void miSetTempActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miSetTempActionPerformed
+        double temp = Double.parseDouble(JOptionPane.showInputDialog("Please enter your new Temperature: "));
+        try {
+            bl.changeTemperature(temp, table.getSelectedRow());
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage());
+        }
+    }//GEN-LAST:event_miSetTempActionPerformed
+
+    private void miHIdeSeaLevelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miHIdeSeaLevelActionPerformed
+
+    }//GEN-LAST:event_miHIdeSeaLevelActionPerformed
+
+    private void miSetHumidityActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_miSetHumidityActionPerformed
+        int humidity = Integer.parseInt(JOptionPane.showInputDialog("Please enter your new Humidity value: "));
+        try {
+            bl.changeHumidity(humidity, table.getSelectedRow());
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage());
+        }
+    }//GEN-LAST:event_miSetHumidityActionPerformed
+
+    private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
+        try {
+            bl.save(f);
+        } catch (Exception ex) {
+            Logger.getLogger(WetterGUI.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_formWindowClosing
 
     /**
      * @param args the command line arguments
@@ -73,11 +225,27 @@ public class WetterGUI extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new WetterGUI().setVisible(true);
+                try {
+                    new WetterGUI().setVisible(true);
+                } catch (Exception ex) {
+                    Logger.getLogger(WetterGUI.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         });
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JMenu jMenu1;
+    private javax.swing.JMenu jMenu2;
+    private javax.swing.JMenuBar jMenuBar1;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JMenuItem miAdd;
+    private javax.swing.JMenuItem miDelete;
+    private javax.swing.JMenuItem miHIdeSeaLevel;
+    private javax.swing.JMenuItem miSetHumidity;
+    private javax.swing.JMenuItem miSetTemp;
+    private javax.swing.JMenuItem miShowSeaLevel;
+    private javax.swing.JPopupMenu popup;
+    private javax.swing.JTable table;
     // End of variables declaration//GEN-END:variables
 }
